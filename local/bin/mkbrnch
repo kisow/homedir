@@ -1,0 +1,57 @@
+#!/bin/bash
+
+envoke()
+{
+	echo $@
+	$@
+}
+
+DATE=`date +%Y%m%d`
+
+PS3="Choose: "
+select i in `svn ls $NEXUS_SVN/tags/ | grep nexus-2.1` trunk quit
+do 
+	[ "$i" = "" ] && continue
+	[ "$i" = "quit" ] && exit 0
+	echo "You chose $i"
+	if [ "$i" = "trunk" ]
+	then
+		# 개발브랜치 (trunk 에서 딴다.)
+		# 브랜치 날짜는 따는 날짜
+		SRC=$NEXUS_SVN/$i
+
+		# 개발브랜치의 POSTFIX 설정
+		read -p "Postfix: " POSTFIX
+	else
+		# A/S브랜치 (tags 에서 딴다.)
+		# 브랜치 날짜는 해당 배포본의 배포날짜
+		SRC=$NEXUS_SVN/tags/$i
+		DATE=${i#nexus-*-*}		# 앞의 버전 부분 삭제
+		POSTFIX=${DATE#*-}		# 핫픽스 POSTFIX 저장
+		DATE=${DATE%%-*}		# 뒤의 postfix 부분 삭제
+	fi
+	break
+done
+
+# 버전 환경변수 설정
+for a in `svn cat $SRC/release/version`
+do 
+	export $a
+done
+
+DEST=$NEXUS_SVN/branches/nexus-${NEXUS_MAJOR_VERSION}.${NEXUS_MINOR_VERSION}.${NEXUS_PATCH_NUMBER}-$DATE-$POSTFIX
+
+# 브랜치 생성
+COPY=
+read -p "svn cp [y/N]: " COPY
+if [[ -n "$COPY" ]]; then
+	envoke svn cp $SRC $DEST
+fi
+
+# 체크 아웃
+CHECKOUT=
+read -p "check out [y/N]: " CHECKOUT
+if [[ -n "$CHECKOUT" ]]; then
+	envoke svn co $DEST
+fi
+# vim: enc=utf8 fdm=marker cms=#%s

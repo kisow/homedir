@@ -1,0 +1,27 @@
+#!/bin/bash
+
+PRODUCT_DIR=$HOME/Product/releases
+TEST_URL=h8a203::R/home1/irteam/user/kisow/test
+
+if [[ "$1" == "" ]]
+then
+	echo "`basename $0` nexus_pkg_name"
+	echo "ex) nexus64"
+	exit
+fi
+
+envoke()
+{
+	echo "$@"
+	$@
+}
+
+PACKAGE_NAME=$1
+
+echo "--------------------------------------------------------------------------------------------------------------\n"
+envoke rsync -avz $HOME/$PACKAGE_NAME/{lib,bin,share,nexus.env} $TEST_URL/$PACKAGE_NAME
+echo "--------------------------------------------------------------------------------------------------------------\n"
+envoke rsync -avz $TEST_URL/$PACKAGE_NAME/
+echo "--------------------------------------------------------------------------------------------------------------\n"
+
+# vim: enc=utf8 fdm=marker cms=#%s

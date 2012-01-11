@@ -1,0 +1,31 @@
+#!/bin/bash
+
+DIR=summary
+
+while getopts "t:" Option
+do
+    case $Option in
+        t )         TARGET=${OPTARG} ;;
+    esac
+done
+
+if [ "${TARGET}" == "" ]; then
+exit
+fi
+
+SRC=nexus::R/home1/kisow/${TARGET}
+DEST=nexus_test
+
+envoke()
+{
+	echo $@
+	$@
+}
+
+envoke rsync -av ${SRC}/bin ${DEST}
+envoke rsync -av ${SRC}/lib ${DEST}
+envoke rsync -av ${SRC}/share ${DEST}
+envoke rsync -av ${SRC}/nexus.env ${DEST}
+
+rm nexus
+ln -s nexus_test nexus

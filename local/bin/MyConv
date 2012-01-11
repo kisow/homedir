@@ -1,0 +1,87 @@
+#!/bin/bash
+
+print_info()
+{
+	echo "${C_GREEN}$1${C_END} $2"
+}
+
+usage()#{{{
+{
+	cat << USAGE_END
+$1 : 파일의 인코딩을 euckr에서 utf8로 변경한다.
+
+Usage: $1 [c/r] -p sed_pattern -t sed_taret
+
+-c : ANSI 컬러 사용
+-r : 하위 디렉토리도 탐색한다.
+	
+USAGE_END
+}
+#}}}
+
+convert_encoding()#{{{
+{
+	local files=`ls --width=1`
+#local tab=$1
+
+	for f in $files
+	do
+		# 파일인 경우
+		if [[ -f "$f" ]]
+		then
+			local ret_cat
+
+			if [[ -z $PT || -z $TG ]]
+			then
+				ret_cat=`cat $f | iconv -f euckr -t utf8 2> /tmp/__conv`
+			else
+				ret_cat=`cat $f | sed -e "s@$PT@$TG@g" | iconv -f euckr -t utf8 2> /tmp/__conv`
+			fi
+			local error=`cat /tmp/__conv`
+		
+			if [[ "$error" != "" ]] 
+			then
+				print_info "${tab}skip" "`pwd`/$f ($error)"
+				continue
+			fi
+#			print_info "${tab}iconv" "$f"
+			{
+				cat << CAT_END
+$ret_cat
+CAT_END
+			} > $f
+
+		# 재귀옵션을 켠 경우
+		elif [[ -n "$RECURSIVE" && -d "$f" ]]
+		then
+#			print_info "${tab}cd" "$f"
+			cd $f
+			convert_encoding "${tab}	"
+#			print_info "${tab}cd" ".."
+			cd ..
+		fi
+	done
+}
+#}}}
+
+### MAIN ####
+
+while getopts ":crdp:t:s" Option
+do
+  case $Option in
+	c     ) 
+			C_GREEN='[32m'
+			C_END='[0m'
+			;;
+	r     ) RECURSIVE=1;;
+	p     ) PT=$OPTARG;;
+	t     ) TG=$OPTARG;;
+	*     ) usage $0
+			exit 1;;
+  esac
+done
+
+
+convert_encoding
+
+# vim: enc=utf8 fdm=marker cms=#%s
