@@ -1,3 +1,29 @@
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle
+" required! 
+Bundle 'gmarik/vundle'
+
+" My Bundles here:
+"
+" original repos on github
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-rails'
+Bundle 'tpope/vim-rake'
+Bundle 'vim-ruby/vim-ruby'
+Bundle 'The-NERD-tree'
+
+syntax on
+filetype indent plugin on
+autocmd FileType ruby compiler ruby 
+autocmd FileType eruby compiler eruby
+autocmd FileType rubyunit compiler rubyunit
+autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+autocmd FileType ruby,eruby set makeprg=ruby\ %
+
 set shiftwidth=4
 set ts=4
 set cindent
@@ -11,10 +37,9 @@ set path+=$NEXUS_DIR/**
 set path+=$LINGUIST_DIR/**
 set path+=/usr/include/**
 set fdm=marker
-set tenc=utf8
 set history=100
 set shellpipe=2>&1\\|gSTLFilt.pl\ -width:210\\|\ tee
-set asm=0
+set syntax=eruby
 syntax on
 au BufNewFile,BufReadPost *.c set cindent ts=4 omnifunc=ccomplete#Complete
 au BufNewFile,BufReadPost *.ddl set cindent
@@ -27,53 +52,10 @@ au BufNewFile,BufReadPost *.rb,*.rhtml set smartindent ts=4 sw=4
 au BufNewFile,BufReadPost *.lua set smartindent ts=4 sw=4
 au BufNewFile,BufReadPost *.log set ft=log
 
-set syntax=eruby
 au Syntax rhtml runtime! syntax/eruby.vim
-au BufNewFile,BufReadPost *.scs so ${NEXUS_DIR}/share/scs.vim
-
-helptags ~/.vim/doc
 
 " TagList
 nmap <F11> :TlistToggle<cr>
 
-" CheckDiff"{{{
-nmap gt :call CheckDiff()<cr>
-function! CheckDiff()
-	let diff_file = matchstr(getline("."), '\S\+\.diff')
-
-	if diff_file =~ '.*\.diff'
-		let diff_header = readfile(diff_file, '', 1024)
-		let ptn = '--- [^:]\+: .\(\/\S\+\)\S\S'
-		let out = matchlist(diff_header, ptn)
-
-		" ntest diff format
-		if empty(out) != 1
-			let orgfile = out[1] . ".tmp"
-			let ptn = '+++ [^:]\+: .\(\/\S\+\)\S\S'
-			let out = matchlist(diff_header, ptn)
-			let newfile = out[1] . ".tmp"
-		else
-			" (unified) diff format 
-			let ptn = '--- \(\/\S\+\)'
-			let out = matchlist(diff_header, ptn)
-
-			if empty(out) != 1
-				let orgfile = out[1]
-				let ptn = '+++ \(\/\S\+\)'
-				let out = matchlist(diff_header, ptn)
-				let newfile = out[1]
-			else
-				echo "unknown diff format!"
-				return
-			endif
-		endif
-		exe "edit " . newfile
-		exe "vert diffsplit " . orgfile
-	else
-		echo "this is NOT a diff_file"
-	endif
-endfunction
-"}}}
-
-" vim:sw=4:ts=4:smarttab:autoindent:enc=utf8:fdm=marker:cms="%s
+" vim:sw=4:ts=4:smarttab:autoindent:fdm=marker:cms="%s
 " nhn_convention:max-column-width=110 notation=NhN

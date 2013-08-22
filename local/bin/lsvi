@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "vim `ls --width=1 --sort=time summary/* | head -n 1`"
-vim `ls --width=1 --sort=time summary/* | head -n 1`
