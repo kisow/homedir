@@ -16,6 +16,7 @@ Bundle 'kisow/vim-pgk'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-rails'
 Bundle 'tpope/vim-rake'
+Bundle 'tpope/vim-bundler'
 Bundle 'vim-ruby/vim-ruby'
 Bundle 'astashov/vim-ruby-debugger'
 
