@@ -26,4 +26,5 @@ do
 done
 
 rm -rf ~/.vim
-link $PWD/.vim ~/
+mkdir -p ~/.vim/bundle/
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
